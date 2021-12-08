@@ -52,8 +52,8 @@ app.layout = dbc.Container(fluid = True, children = [
                 html.Section([
                     dbc.Row([
                         dbc.Col([
-                            html.H3('Info: Tools &', style = dict(paddingTop = '8px')),
-                            html.H3('Libraries Used'),
+                            html.H4('Select Info:', style = dict(paddingTop = '8px')),
+                            html.H4('Process & Libraries'),
                             html.Div([
                                 dcc.Dropdown(
                                     id = 'extra-info-dropdown',
