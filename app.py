@@ -77,8 +77,6 @@ app.layout = dbc.Container(fluid = True, children = [
             'background': '#393F8F',
             'border': 'whitesmoke'
         },
-        parent_className = 'custom-tabs',
-        className = 'custom-tabs-container',
         children = [
             dcc.Tab(
                 label = '1: Character Mentions',
@@ -89,16 +87,19 @@ app.layout = dbc.Container(fluid = True, children = [
                 label = '2: Disneyland Ride Sentiments',
                 value = 'tab-2',
                 className = 'graph-tab',
+
             ),
             dcc.Tab(
                 label = '3A: Post Sentiment & Stock Price', 
                 value = 'tab-3a',
                 className = 'graph-tab',
+
             ),
             dcc.Tab(
                 label = '3B: Comment Sentiment & Stock Price', 
                 value = 'tab-3b',
                 className = 'graph-tab',
+
             ),
         ]),
         html.Div(id = 'tabs-content')    
@@ -111,23 +112,8 @@ graph_font = dict(
 )
 
 # Tab 1: Character Mentions
-
-cm_df = pd.read_csv('sampleData/disney_character_count.csv')
-# Capitalize names
-characters = cm_df['Character'].str.title()
-
-cm_fig = go.Figure(
-    go.Bar(x = characters, y = cm_df['Count'])
-)
-
-cm_fig.update_layout(
-    title = 'Character Mentions among 500,000 r/Disney Comments',
-    title_x = 0.5,
-    height = 850,
-)
-
 tab_1 = dbc.Row([
-    dcc.Graph(figure = cm_fig)
+    html.Img(src=app.get_asset_url('charactersChart.png'))
 ])
 
 # Tab 2: Disneyland Ride Sentiments
@@ -162,7 +148,7 @@ colormap = cm.LinearColormap(
 
 #iterate through the dataframe and add each attraction to the feature group
 for index, row in data.iterrows():
-    fg.add_child(folium.Marker(location=[row["lat"], row["long"]], popup="{} : {}".format(row["ride"].upper(), round(row['sentiment'], 2)), icon=folium.Icon(color="black", icon_color=colormap(1-row['sentiment']))))
+    fg.add_child(folium.Marker(location=[row["lat"], row["long"]], popup="{} : {}".format(row["ride"].upper(), round(row['sentiment'], 2)), icon=folium.Icon(color="black", icon_color=colormap(row['sentiment']))))
 
 map.add_child(colormap)
     
@@ -209,7 +195,7 @@ post_fig.add_trace(
     go.Scatter(
         x = pp_dates,
         y = pp,
-        name = 'Stock Price',
+        name = 'Natural Log of Stock Price',
     ),
     secondary_y = True
 )
@@ -220,20 +206,64 @@ post_fig.update_layout(
     title_x = 0.5,
     height = 850,
     yaxis_showgrid = False,
-    font = graph_font
+    font = graph_font,
 )
 
-post_fig.update_yaxes(title_text='Sentiment (5: Highest; 1: Lowest)', secondary_y=False)
-post_fig.update_yaxes(title_text='Natural Log of Stock Price (USD)', secondary_y=True)
+post_fig.update_yaxes(title_text='Sentiment (5 = Highest; 1 = Lowest)', tickformat = ".2f", showgrid = False, secondary_y=False)
+post_fig.update_yaxes(title_text='Natural Log of Stock Price (USD)', tickformat = ".1f", showgrid = False, secondary_y=True)
 
 
 tab_3a = dbc.Row([
     dcc.Graph(figure = post_fig)
 ])
 
+# Tab 3B
+cs_df = pd.read_csv('sampleData/SMOOTHED_COMMENT_SENTIMENT.csv')
+cs = cs_df['Sentiment']
+cs_dates = cs_df['Date']
+
+cp_df = pd.read_csv('sampleData/COMMENT_FINANCE.csv')
+cp_raw = cp_df['Price']
+# Take natural log
+cp = np.log(cp_raw)
+cp = np.round(cp, 2)
+cp_dates = cp_df['Date']
+
+comment_fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+comment_fig.add_trace(
+    go.Scatter(
+        x = cs_dates,
+        y = cs,
+        name = 'Comment Sentiment',
+    ),
+    secondary_y = False
+)
+
+comment_fig.add_trace(
+    go.Scatter(
+        x = cp_dates,
+        y = cp,
+        name = 'Natural Log of Stock Price',
+    ),
+    secondary_y = True
+)
+
+comment_fig.update_layout(
+    title_text = 'Comment Sentiment & Stock Price vs. Time',
+    xaxis_title = 'Date',
+    title_x = 0.5,
+    height = 850,
+    yaxis_showgrid = False,
+    font = graph_font
+)
+
+comment_fig.update_yaxes(title_text='Sentiment (5 = Highest; 1 = Lowest)', tickformat = ".2f", showgrid = False, secondary_y=False)
+comment_fig.update_yaxes(title_text='Natural Log of Stock Price (USD)', tickformat = ".1f", showgrid = False, secondary_y=True)
+
 
 tab_3b = dbc.Row([
-
+    dcc.Graph(figure = comment_fig)
 ])
 
 @app.callback(Output('tabs-content', 'children'),
@@ -250,7 +280,7 @@ def render_content(tab):
 
 extra_info_dict = dict(
     api = [
-        'Our group authored an API to allow users to fetch Reddit post sentiment and stock price data for analysis.',
+        'Our group authored an API to allow users to fetch Reddit post sentiment and stock price data for analysis for a given subreddit and associated stock.',
         html.Br(), html.Br(),
         dcc.Link(
             'Click here to view the Jupyter Notebook',
@@ -258,9 +288,9 @@ extra_info_dict = dict(
             style = dict(color = '#10194A')
         )
     ],
-    pmaw = 'pmaw info',
+    pmaw = '',
     pushshift = '',
-    yfinance = 'yfinance info'
+    yfinance = ''
 )
 
 @app.callback(

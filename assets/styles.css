@@ -38,6 +38,7 @@ Section {
 
 #extra-info-dropdown {
     font-family: Avenir;
+    font-size: 14px;
     margin: auto;
     vertical-align: center;
     color: var(--disney-dark-blue);
@@ -79,11 +80,3 @@ Section {
     font-size: 24px;
     margin: 10px 0px 10px 0px;
 }
-
-#deaths-graph-container {
-    padding: 10px;
-    border-width: 3px;
-    border-color: black;
-}
-
-
