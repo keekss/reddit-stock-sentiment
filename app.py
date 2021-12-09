@@ -209,8 +209,12 @@ post_fig.update_layout(
     font = graph_font,
 )
 
-post_fig.update_yaxes(title_text='Sentiment (5 = Highest; 1 = Lowest)', tickformat = ".2f", showgrid = False, secondary_y=False)
-post_fig.update_yaxes(title_text='Natural Log of Stock Price (USD)', tickformat = ".1f", showgrid = False, secondary_y=True)
+post_fig.update_yaxes(
+    title_text='Sentiment (5 = Highest; 1 = Lowest)',
+    tickformat = ".2f", showgrid = False,
+    secondary_y=False,
+)
+post_fig.update_yaxes(title_text='Natural Log of Stock Price (USD)', tickformat = ".1f", showgrid = False, secondary_y=True,)
 
 
 tab_3a = dbc.Row([
@@ -255,7 +259,7 @@ comment_fig.update_layout(
     title_x = 0.5,
     height = 850,
     yaxis_showgrid = False,
-    font = graph_font
+    font = graph_font,
 )
 
 comment_fig.update_yaxes(title_text='Sentiment (5 = Highest; 1 = Lowest)', tickformat = ".2f", showgrid = False, secondary_y=False)
