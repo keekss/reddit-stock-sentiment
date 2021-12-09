@@ -15,6 +15,9 @@ The final section of the notebook contains driver code to reconstruct our sample
 [sampleData](https://github.com/keekss/ics-484-final/tree/main/sampleData) directory. These graphs get posts and comments from 
 [r/disney](https://www.reddit.com/r/disney/) and plots their sentiment alongside Disney stock. 
 
+To smooth the sentiment analysis results, an API called [ASAP](https://dawn.cs.stanford.edu/2017/08/07/asap/) was used. This was written python2, so 
+the modified version of this that we used can be found [here](https://github.com/keekss/ics-484-final/blob/main/ASAP.ipynb). 
+
 ### Plotly Website
 
 INSERT TEXT
