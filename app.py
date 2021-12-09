@@ -28,8 +28,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-
-
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 
 app.layout = dbc.Container(fluid = True, children = [
@@ -58,6 +56,7 @@ app.layout = dbc.Container(fluid = True, children = [
                                 dcc.Dropdown(
                                     id = 'extra-info-dropdown',
                                     options =[
+                                        dict(label = 'Reddit Sentiment & Stock API', value = 'api'),
                                         dict(label = 'PMAW', value = 'pmaw'),
                                         dict(label = 'Pushshift', value = 'pushshift'),
                                         dict(label = 'yfinance', value = 'yfinance'),
@@ -92,8 +91,13 @@ app.layout = dbc.Container(fluid = True, children = [
                 className = 'graph-tab',
             ),
             dcc.Tab(
-                label = '3: Sentiment & Stock Price vs. Time', 
-                value = 'tab-3',
+                label = '3A: Post Sentiment & Stock Price', 
+                value = 'tab-3a',
+                className = 'graph-tab',
+            ),
+            dcc.Tab(
+                label = '3B: Comment Sentiment & Stock Price', 
+                value = 'tab-3b',
                 className = 'graph-tab',
             ),
         ]),
@@ -101,6 +105,10 @@ app.layout = dbc.Container(fluid = True, children = [
     ]),
 ])
 
+graph_font = dict(
+    family = 'Avenir',
+    size = 24,
+)
 
 # Tab 1: Character Mentions
 
@@ -175,50 +183,57 @@ tab_2 = dbc.Row([
     ride_map_frame
 ])
 
-# Tab 3: Reddit Sentiment & Stock Price
-# ss => sentiment & stock
-ss_price_df = pd.read_csv('sampleData/usable_finance.csv')
-ss_prices = ss_price_df['Close_Price']
+# Tab 3A
+ps_df = pd.read_csv('sampleData/SMOOTHED_POST_SENTIMENT.csv')
+ps = ps_df['Sentiment']
+ps_dates = ps_df['Date']
 
-ss_sentiment_df = pd.read_csv('sampleData/usable_sentiment.csv')
-ss_sentiments_raw = ss_sentiment_df['Sentiment']
+pp_df = pd.read_csv('sampleData/POST_FINANCE.csv')
+pp_raw = pp_df['Close_Price']
+# Take natural log
+pp = np.log(pp_raw)
+pp_dates = pp_df['Date']
 
-# Smooth sentiments with a moving average
-# Referenced https://stackoverflow.com/questions/14313510/how-to-calculate-rolling-moving-average-using-python-numpy-scipy
-def moving_average(x, w):
-    return np.convolve(x, np.ones(w), 'valid') / w
+post_fig = make_subplots(specs=[[{"secondary_y": True}]])
 
-ss_sentiments = moving_average(ss_sentiments_raw, 30)
-
-ss_dates = ss_price_df['Date'] # same for both dfs
-
-ss_fig = make_subplots(specs=[[{"secondary_y": True}]])
-
-ss_fig.add_trace(
+post_fig.add_trace(
     go.Scatter(
-        x = ss_dates,
-        y = ss_prices,
-        name = 'Stock Price',
+        x = ps_dates,
+        y = ps,
+        name = 'Post Sentiment',
     ),
     secondary_y = False
 )
 
-ss_fig.add_trace(
+post_fig.add_trace(
     go.Scatter(
-        x = ss_dates,
-        y = ss_sentiments,
-        name = 'Reddit Sentiment',
+        x = pp_dates,
+        y = pp,
+        name = 'Stock Price',
     ),
     secondary_y = True
 )
 
-ss_fig.update_layout(
-    title_text = 'Reddit Sentiment & Stock Price vs. Time'
+post_fig.update_layout(
+    title_text = 'Post Sentiment & Stock Price vs. Time',
+    xaxis_title = 'Date',
+    title_x = 0.5,
+    height = 850,
+    yaxis_showgrid = False,
+    font = graph_font
 )
 
+post_fig.update_yaxes(title_text='Sentiment (5: Highest; 1: Lowest)', secondary_y=False)
+post_fig.update_yaxes(title_text='Natural Log of Stock Price (USD)', secondary_y=True)
 
-tab_3 = dbc.Row([
-    dcc.Graph(figure = ss_fig)
+
+tab_3a = dbc.Row([
+    dcc.Graph(figure = post_fig)
+])
+
+
+tab_3b = dbc.Row([
+
 ])
 
 @app.callback(Output('tabs-content', 'children'),
@@ -228,10 +243,21 @@ def render_content(tab):
         return tab_1
     elif tab == 'tab-2':
         return tab_2
-    elif tab == 'tab-3':
-        return tab_3
+    elif tab == 'tab-3a':
+        return tab_3a
+    elif tab == 'tab-3b':
+        return tab_3b
 
 extra_info_dict = dict(
+    api = [
+        'Our group authored an API to allow users to fetch Reddit post sentiment and stock price data for analysis.',
+        html.Br(), html.Br(),
+        dcc.Link(
+            'Click here to view the Jupyter Notebook',
+            href='https://github.com/keekss/ics-484-final/blob/main/Reddit_Sentiment_vs_Stock_API.ipynb',
+            style = dict(color = '#10194A')
+        )
+    ],
     pmaw = 'pmaw info',
     pushshift = '',
     yfinance = 'yfinance info'

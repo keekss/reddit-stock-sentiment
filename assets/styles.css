@@ -39,6 +39,7 @@ Section {
 #extra-info-dropdown {
     font-family: Avenir;
     margin: auto;
+    vertical-align: center;
     color: var(--disney-dark-blue);
     padding: 2px;
     padding-left: 10px;
@@ -53,7 +54,6 @@ Section {
 }
 
 .graph {
-    background-color: var(--disney-pink);
     border-style: solid;
     border-width: 3px;
     border-color: whitesmoke;
