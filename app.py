@@ -30,6 +30,8 @@ from plotly.subplots import make_subplots
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 
+disney_dark_blue_hex = '#10194A'
+
 app.layout = dbc.Container(fluid = True, children = [
     dbc.Container(fluid = True, children = [
         dbc.Row([
@@ -43,6 +45,28 @@ app.layout = dbc.Container(fluid = True, children = [
                         'ICS 484 - Final Project, Fall 2021 - Robert Lemon, Clark Whitehead, Kiko Whiteley',
                         style = {'padding-top': '0px'}
                     ),
+                    dbc.Row([
+                        dbc.Col(html.H5('Visit our:'), width = 3),
+                        dbc.Col(html.H5(
+                            dcc.Link(
+                                'GitHub Repository',
+                                href='https://github.com/keekss/ics-484-final',
+                                style = dict(color = disney_dark_blue_hex),
+                                target = "_blank"
+                            ), style = dict(color = disney_dark_blue_hex),
+                        ), width = 4),
+                        dbc.Col(html.H5(
+                            dcc.Link(
+                                'Reddit Sentiment & Stock API',
+                                href='https://github.com/keekss/ics-484-final/blob/main/Reddit_Sentiment_vs_Stock_API.ipynb',
+                                style = dict(color = disney_dark_blue_hex),
+                                target = "_blank"
+                            ), style = dict(color = disney_dark_blue_hex),
+                        ), width = 5),
+                    ], style = dict(paddingTop = '10px')),
+                    html.H4(
+                       
+                    ),                    
                 ]),
                 width = 6
             ),
@@ -61,9 +85,14 @@ app.layout = dbc.Container(fluid = True, children = [
                                         dict(label = 'Pushshift', value = 'pushshift'),
                                         dict(label = 'yfinance', value = 'yfinance'),
                                     ],
+                                    searchable = True,
                                 ),
-                            ])], width = 3),
-                        dbc.Col(html.H5(id = 'extra-info-text'), width = 9),
+                            ])], width = 4),
+                        dbc.Col(
+                            html.H4(id = 'extra-info-text'), 
+                            width = 8,
+                            style = dict(margin = 'auto')
+                        ),
                     ]),
                 ])
             )
@@ -109,6 +138,7 @@ app.layout = dbc.Container(fluid = True, children = [
 graph_font = dict(
     family = 'Avenir',
     size = 24,
+    
 )
 
 # Tab 1: Character Mentions
@@ -148,13 +178,16 @@ colormap = cm.LinearColormap(
 
 #iterate through the dataframe and add each attraction to the feature group
 for index, row in data.iterrows():
-    fg.add_child(folium.Marker(location=[row["lat"], row["long"]], popup="{} : {}".format(row["ride"].upper(), round(row['sentiment'], 2)), icon=folium.Icon(color="black", icon_color=colormap(row['sentiment']))))
+    fg.add_child(folium.Marker(
+        location=[row["lat"], row["long"]], 
+        popup="{} : {}".format(row["ride"].upper(), round(row['sentiment'], 2)), 
+        icon=folium.Icon(color="black", icon_color=colormap(row['sentiment'])))
+    )
 
 map.add_child(colormap)
     
 #add the feature group to the map
 map.add_child(fg)
-
 
 ride_map = map.save('ride_map.html')
 
@@ -284,17 +317,38 @@ def render_content(tab):
 
 extra_info_dict = dict(
     api = [
-        'Our group authored an API to allow users to fetch Reddit post sentiment and stock price data for analysis for a given subreddit and associated stock.',
-        html.Br(), html.Br(),
+        'Our group authored an API to allow users to fetch Reddit post sentiment and stock price data for analysis for a given subreddit and associated stock.  ',
         dcc.Link(
-            'Click here to view the Jupyter Notebook',
+            'View the Jupyter Notebook',
             href='https://github.com/keekss/ics-484-final/blob/main/Reddit_Sentiment_vs_Stock_API.ipynb',
-            style = dict(color = '#10194A')
+            style = dict(color = disney_dark_blue_hex),
         )
     ],
-    pmaw = '',
-    pushshift = '',
-    yfinance = ''
+    pmaw = [
+        'PMAW (Pushshift Multithread API Wrapper) uses the Pushshift API (see \"Pushshift\" info) to multithread ineractions of Pushshift endpoints to improve performance.  ',
+        dcc.Link(
+            'View the GitHub Repository',
+            href='https://github.com/mattpodolak/pmaw',
+            style = dict(color = disney_dark_blue_hex),
+        )
+    ],
+    pushshift = [
+        'Pushshift allows users to search Reddit.com posts and comments based on various criteria, such as keywords, creation date, and score.  ',
+        html.Br(),
+        dcc.Link(
+            'View the GitHub Repository',
+            href='https://github.com/pushshift/api',
+            style = dict(color = disney_dark_blue_hex),
+        )
+    ],
+    yfinance = [
+        'yfinance allows users to access market data from Yahoo Finance, one of the leading financial media services.  Our group used yfinance to pull historical stock price data.  ',
+        dcc.Link(
+            'View the PyPI Project Page',
+            href='https://pypi.org/project/yfinance/',
+            style = dict(color = disney_dark_blue_hex),
+        )
+    ],
 )
 
 @app.callback(
