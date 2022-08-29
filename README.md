@@ -1,6 +1,6 @@
-# ICS 484 Final Project
+# Reddit Sentiment and Stock Price
 
-### Reddit Sentiment and Stock Price
+## Overview
 
 The first part of this project is a python notebook consisting of a pipeline to get content from Reddit and the stock market, perform sentiment analysis on the content, then graph the two datasets. This notebook is fairly robust - each process takes in an iput file and writes to an output file, allowing you to enter the pipeline at any point and checkpoint as you go. 
 
@@ -10,7 +10,7 @@ The final section of the notebook contains driver code to reconstruct our sample
 
 To smooth the sentiment analysis results, an API called [ASAP](https://dawn.cs.stanford.edu/2017/08/07/asap/) was used. This was written python2, so the modified version of this that we used can be found [here](https://github.com/keekss/ics-484-final/blob/main/ASAP.ipynb). 
 
-### Plotly Website
+## Plotly Website
 
 The results from the Reddit Sentiment and Stock Price notebook above has been included in a plotly website (coded in Python using Dash). We also included a bar graph depicting which Disney characters were discussed the most on the r/Disney subreddit, as well as an interactive map of Disneyland with each ride's sentiment (taken from r/Disneyland) being displayed. 
 
